@@ -1,25 +1,5 @@
-import utime
 import urandom
 from machine import Timer
-
-
-class Patterns (dict):
-    def __init__(self) -> None:
-        super().__init__()
-        self.seed = 0.25
-        self.update({
-            'blinker': set([(5, 3), (6, 3), (7, 3)]),
-            'glider': set([(3, 1), (1, 2), (3, 2), (2, 3), (3, 3)])
-        })
-
-    def random(self, size):
-        (max_x, max_y) = size
-        cells = set()
-        for x in range(max_x-1):
-            for y in range(max_y):
-                if urandom.random() < self.seed:
-                    cells.add((x, y))
-        return cells
 
 
 class Display:
@@ -99,4 +79,25 @@ class Rules:
         pass
 
     def apply(self, current):
-        return current
+        return current+1
+
+
+class VM:
+    def __init__(self, callback=print, freq=10) -> None:
+        self.timestep = int(1000/freq)
+        self.timer = Timer()
+        self.callback = callback
+
+    def step(self, timer):
+        next = self.rules.apply(self.current)
+        self.callback(next)
+        self.current = next
+
+    def start(self, initial_state, rules):
+        self.current = initial_state
+        self.rules = rules
+        self.timer.init(period=self.timestep,
+                        mode=Timer.PERIODIC, callback=self.step)
+
+    def halt(self):
+        self.timer.deinit()
