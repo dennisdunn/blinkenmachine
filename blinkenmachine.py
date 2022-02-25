@@ -69,7 +69,7 @@ class Buttons:
     def dispatch(self, timer):
         for button in self.callbacks:
             if self.board.is_pressed(button):
-                while self.board.is_pressed(button):
+                while self.board.is_pressed(button): # debounce
                     pass
                 self.callbacks[button]()
 
@@ -79,7 +79,7 @@ class Rules:
         pass
 
     def apply(self, current):
-        return current+1
+        return current
 
 
 class VM:
@@ -87,6 +87,7 @@ class VM:
         self.timestep = int(1000/freq)
         self.timer = Timer()
         self.callback = callback
+        self.current = {}
 
     def step(self, timer):
         next = self.rules.apply(self.current)
