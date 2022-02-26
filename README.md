@@ -10,7 +10,7 @@ Das Blinken Machine
 >
 > Relaxen und watchen das blinkenlights.
 
-The Blinken Machine is a ```VM``` that runs on a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn. The VM continuously executes a finite state machine and passes the current state to a callback which can then update a ```Display``` instance. An instance of the ```Buttons``` class registers callbacks for the ***A***, ***B***, ***X***, and ***Y*** buttons of the Unicorn board. The base class ```Rules``` simply returns the current state at each timestep.
+The Blinken Machine is a ```VM``` that runs on a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn. The VM continuously executes a finite state machine and passes the current state to a callback which can then update a ```Display``` instance. An instance of the ```Buttons``` class registers callbacks for the ***A***, ***B***, ***X***, and ***Y*** buttons of the Unicorn board. 
 
 ### Examples
 
