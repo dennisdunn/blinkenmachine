@@ -1,22 +1,25 @@
-import picounicorn
 
-from blinkenmachine import Display, Buttons, VM
-from conwayslife import Patterns, ConwaysLife as rules
+def fsm(cells):
+    def count_neighbors(cells):
+        counts = {}
+        for cell in cells:
+            for dx in [-1,  0, 1]:
+                for dy in [-1, 0, 1]:
+                    (x, y) = cell
+                    pos = (x-dx, y-dy)
+                    if pos in counts:
+                        counts[pos] += 1
+                    else:
+                        counts[pos] = 1
+        return counts
 
-picounicorn.init()
-
-disp = Display(picounicorn)
-
-
-def update(current):
-    disp.clear()
-    disp.set(current, (0, 255, 0))
-
-
-vm = VM(update)
-
-
-b = Buttons(picounicorn)
-b.register(Buttons.A, lambda: vm.start(Patterns.blinker, rules()))
-b.register(Buttons.B, vm.halt)
-b.enable()
+    next = set()
+    counts = count_neighbors(cells)
+    for cell in counts:
+        if cell in cells:  # alive
+            if counts[cell] == 2 | counts[cell] == 3:
+                next.add(cell) # stayed alive
+        else:  # dead
+            if counts[cell] == 3:
+                next.add(cell) # born
+    return next

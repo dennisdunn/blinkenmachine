@@ -12,23 +12,24 @@ Das Blinken Machine
 
 The Blinken Machine is a ```VM``` that runs on a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn. The VM continuously executes a finite state machine and passes the current state to a callback which can then update a ```Display``` instance. An instance of the ```Buttons``` class registers callbacks for the ***A***, ***B***, ***X***, and ***Y*** buttons of the Unicorn board. The base class ```Rules``` simply returns the current state at each timestep.
 
-Demo
----
+### Examples
 
-The simplest demo which will never fail.
+* *demo1.py* 
+    * Lights random pixels on the display.
+* *demo2.py*
+    * Implements *Conway's Game of Life*. The **A** button restarts the ```VM```
+    with a new initial pattern.
+
+Here's a simple demo that illustrates setting up the ```VM```.
 
 ```
-import picounicorn
-from blinkenmachine import Display
+from blinkenmachine import VM
 
-picounicorn.init()
-
-display = Display(picounicorn)
-
-display.blinken()
+vm = VM(print)
+vm.start(0, lambda x: x + 1)
 ```
 
-Module
+blinkenmachine Module
 ---
 
 ### Display

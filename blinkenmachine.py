@@ -76,14 +76,16 @@ class VM:
         self.timer = Timer()
         self.period = int(1000/freq)+1
         self.callback = callback
+        self.previous = None
 
     def start(self, initial_state, fsm):
-        current = initial_state
+        self.previous = initial_state
 
         def on_timestep(timer):
-            next = fsm(current)
-            self.callback(current, next)
-            current = next
+            # scoping variables don't work like I thought
+            next = fsm(self.previous)
+            self.callback((self.previous, next))
+            self.previous = next
 
         self.timer.init(period=self.period,
                         mode=Timer.PERIODIC,
