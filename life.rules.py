@@ -20,11 +20,11 @@ class ConwaysLife(Rules):
     def __init__(self) -> None:
         super().__init__()
 
-    def apply(self, current):
+    def apply(self, cells):
         next = set()
-        counts = self.count_neighbors(current)
+        counts = self.count_neighbors(cells)
         for cell in counts:
-            if cell in current:  # alive
+            if cell in cells:  # alive
                 if counts[cell] == 2 | counts[cell] == 3:
                     next.add(cell)
             else:  # dead
@@ -32,9 +32,9 @@ class ConwaysLife(Rules):
                     next.add(cell)
         return next
 
-    def count_neighbors(self, current):
+    def count_neighbors(self, cells):
         counts = {}
-        for cell in current:
+        for cell in cells:
             for dx in [-1,  0, 1]:
                 for dy in [-1, 0, 1]:
                     (x, y) = cell

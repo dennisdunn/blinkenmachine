@@ -18,5 +18,5 @@ def reset():
     vm.halt()
     vm.start(Patterns.random(), ConwaysLife())
 
-buttons.on(Buttons.A, reset)
+buttons.register(Buttons.A, reset)
 buttons.enable()
