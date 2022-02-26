@@ -20,7 +20,7 @@ def rpattern(size):
     (max_x, max_y) = size
     cells = set()
     for x in range(max_x-1):
-        for y in range(max_y):
+        for y in range(max_y-1):
             if urandom.random() < 0.25:
                 cells.add((x, y))
     return cells
