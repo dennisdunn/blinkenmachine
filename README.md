@@ -82,36 +82,3 @@ The **Blinken Machine** ```VM``` continuously applies a function to state. The f
     * Start executing the *fsm* finite-state-machine with the given *initial_state*.
 * ```halt()```
     * Stop exeution.
-
-Writing Rules for an FSM
----
-
-Here are the rules for [Conway's ___Game Of Life___](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). The actual code for this FSM is in ```life.rules.py```,
-```
-class ConwaysLife():
-
-    def apply(self, cells):
-        next = set()
-        counts = self.count_neighbors(cells)
-        for cell in counts:
-            if cell in cells:  # alive
-                if counts[cell] == 2 | counts[cell] == 3:
-                    next.add(cell)
-            else:  # dead
-                if counts[cell] == 3:
-                    next.add(cell)
-        return next
-
-    def count_neighbors(self, cells):
-        counts = {}
-        for cell in cells:
-            for dx in [-1,  0, 1]:
-                for dy in [-1, 0, 1]:
-                    (x, y) = cell
-                    pos = (x-dx, y-dy)
-                    if pos in counts:
-                        counts[pos] += 1
-                    else:
-                        counts[pos] = 1
-        return counts
-```
