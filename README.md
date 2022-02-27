@@ -9,8 +9,10 @@ Das Blinken Machine
 > Das machine is diggen by experten only. Is nicht fur gerwerken by das dummkopfen. Das rubbernecken sightseeren keepen das cottenpicken hands in das pockets. 
 >
 > Relaxen und watchen das blinkenlights.
+>
+> [Wikipedia](https://en.wikipedia.org/wiki/Blinkenlights)
 
-The Blinken Machine is a ```VM``` that runs on a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn. The VM continuously executes a finite state machine and passes the current state to a callback which can then update a ```Display``` instance. An instance of the ```Buttons``` class registers callbacks for the ***A***, ***B***, ***X***, and ***Y*** buttons of the Unicorn board. 
+The Blinken Machine is an environment consisting of a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn built for playing with cellular automata. The ```VM``` continuously executes a finite state machine and passes the current state to a callback which can then update a ```Display``` instance. An instance of the ```Buttons``` class registers callbacks for the ***A***, ***B***, ***X***, and ***Y*** buttons of the Unicorn board. 
 
 ### Examples
 
@@ -82,3 +84,9 @@ The **Blinken Machine** ```VM``` continuously applies a function to state. The f
     * Start executing the *fsm* finite-state-machine with the given *initial_state*.
 * ```halt()```
     * Stop exeution.
+
+### Next Steps
+
+The ultimate goal is to have a DSL for defining the FSM of the cellular automaton. 
+A parser and compiler turn the DSL into code for the VM to execute, possibly by transpiling
+to python.
