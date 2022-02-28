@@ -13,7 +13,7 @@ Das Blinken Machine
 > [Wikipedia](https://en.wikipedia.org/wiki/Blinkenlights)
 
 The **Blinken Machine** is a computing device for playing with cellular automata. This tiny computer
-is built with a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn Pack,a 16x7 RGB LED matrix . It runs
+is built with a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn Pack. It runs
 MicroPython as its "BIOS" and an instance of the ```VM``` class as its "operating system."
 Input is through the ```Buttons``` class and output is handled by the ```Display``` class.
 
