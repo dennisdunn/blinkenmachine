@@ -12,7 +12,10 @@ Das Blinken Machine
 >
 > [Wikipedia](https://en.wikipedia.org/wiki/Blinkenlights)
 
-The Blinken Machine is an environment consisting of a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn built for playing with cellular automata. The ```VM``` continuously executes a finite state machine and passes the current state to a callback which can then update a ```Display``` instance. An instance of the ```Buttons``` class registers callbacks for the ***A***, ***B***, ***X***, and ***Y*** buttons of the Unicorn board. 
+The **Blinken Machine** is a computing device for playing with cellular automata. This tiny computer
+is built with a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn LED matrix . It runs
+MicroPython as its "BIOS" and an instance of the ```VM``` class as its "operating system."
+Input is through the ```Buttons``` class and output is handled by the ```Display``` class.
 
 ### Examples
 
@@ -87,6 +90,9 @@ The **Blinken Machine** ```VM``` continuously applies a function to state. The f
 
 ### Next Steps
 
-The ultimate goal is to have a DSL for defining the FSM of the cellular automaton. 
-A parser and compiler turn the DSL into code for the VM to execute, possibly by transpiling
-to python.
+* Add support for 1-dimensional cellular automata. Each time the bottom row is recalculated, 
+all of the rows move up one row.
+* Add a *WA-TOR* demo. Each cell in *Conway's Life* is very simple, it is either **dead**, **alive** or 
+**empty**. A cell in *WA-TOR* has three states as well, **fish**, **shark**, or **empty** but 
+then it also has properties like **age** and **hunger**.
+* Add a DSL for describing a cellular atomaton and a parser for that language.
