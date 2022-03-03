@@ -17,26 +17,6 @@ is built with a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn Pack. It 
 MicroPython as its "BIOS" and an instance of the ```VM``` class as its "operating system."
 Input is through the ```Buttons``` class and output is handled by the ```Display``` class.
 
-### Examples
-
-* *demo1.py* 
-    * Lights random pixels on the display.
-* *demo2.py*
-    * Implements *Conway's Game of Life*. The **A** button restarts the ```VM```
-    with a new initial pattern.
-
-Here's a simple demo that illustrates setting up the ```VM```.
-
-```
-from blinkenmachine import VM
-
-vm = VM(print)
-vm.start(0, lambda x: x + 1)
-```
-
-blinkenmachine Module
----
-
 ### Display
 
 The *Display* class controls access to the LEDs on the Pico Unicorn board. A *cell* is
@@ -57,18 +37,29 @@ an ```(x, y)``` tuple while a *color* is an ```(r, g, b)``` tuple.
 * ```unset(cells)```
     * Set each cell of *cells* to black.
 
+### CallbackManager
+
+A ```CallbackManager``` handles registering, deregistering, and invoking callbacks for named events.
+
+#### Methods
+
+* ```CallbackManager(args)```
+    * The *args* argument will be passed to the registered callbacks.
+* ```invoke(event_name)```
+    * Call the registerd callbacks for *event_name*.
+* ```register(event_name, callback)```
+    * Add the *callback* to the list of methods for *event_name*.
+* ```deregister(event_name, callback)```
+    * Remove the *callback* for *event_name*.
+
 ### Buttons
 
 Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn board. Button presses are debounced before invoking the callback. The buttons are named **Buttons.A**, **Buttons.B**, **Buttons.X**, **Buttons.Y**.
 
 #### Methods
 
-* ```Buttons(driver, freq)```
-    * The *driver* argument is the picounicorn module and *freq* is the polling frequency.
-* ```register(button, callback)```
-    * Register a *callback* for the given *button*.  You can register multiple callbacks for a single button.
-* ```deregister(button, callback)```
-    * Unregister the *callback* for the *button*. 
+* ```Buttons(driver, events, period)```
+    * The *driver* argument is the picounicorn module, *events* is an instance of a **CallbackManager**, and *period* is the polling delay.
 * ```enable()```
     * Start polling the buttons on the Unicorn board.
 * ```disable()```
@@ -76,17 +67,24 @@ Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn bo
 
 ### VM
 
-The **Blinken Machine** ```VM``` continuously applies a function to state. The function implements a finite-state-machine and at each timestep takes the current state of the FSM and returns a 
-```(previous_state, next_state)``` tuple.
+The **Blinken Machine** ```VM``` continuously applies finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the new state is
+displayed, and finally the current state is updated to the new state.
+
+Event handlers can be registered for the **on_load**, **on_update**, **on_run**, and **on_halt**
+events.
 
 #### Methods
 
-* ```VM(callback, freq)```
-    * Call the *callback* function *freq* times per second with the result of the FSM state changes.
-* ```start(initial_state, fsm)```
-    * Start executing the *fsm* finite-state-machine with the given *initial_state*.
+* ```VM(driver)```
+    * Initialize a VM with the picounicorn *driver*.
+* ```load(fsm)```
+    * Set the VM fsm to the provided *fsm* method.
+* ```update(state)```
+    * Set the VM state to the provided *state* object.
+* ```run()```
+    * Start exeution.
 * ```halt()```
-    * Stop exeution.
+    * Halt exeution.
 
 ### Next Steps
 
