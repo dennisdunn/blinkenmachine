@@ -1,4 +1,11 @@
 from machine import Timer
+import urandom
+
+# state is a dict of cells
+# the key is the xy of the cell
+# the value is a dict of properties
+
+# a cell is a tuple of (xy, properties) ie: a dict item
 
 class Display:
     def __init__(self, driver) -> None:
