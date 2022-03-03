@@ -1,6 +1,5 @@
 from machine import Timer
 
-
 class Display:
     def __init__(self, driver) -> None:
         self.board = driver
@@ -15,19 +14,20 @@ class Display:
             for y in range(self.height):
                 self.board.set_pixel_value(x, y, 0)
 
-    def set_pixel(self, cell, color):
-        (x, y) = cell
+    def set_pixel(self, xy, color):
+        (x, y) = xy
         (r, g, b) = color
-        self.board.set_pixel(x % self.width, y % self.height, r, g, b)
+        self.board.set_pixel(x % self.width, y %
+                             self.height, r, g, b)  # toroidal display
 
-    def set(self, cells, color):
-        for cell in cells:
-            self.set_pixel(cell, color)
+    def set(self, state):
+        for cell in state.items():
+            (xy, props) = cell
+            self.set_pixel(xy, props['color'])
 
-    def unset(self, cells):
-        for cell in cells:
-            (x, y) = cell
-            self.board.set_pixel_value(x % self.width, y % self.height, 0)
+    def unset(self, state):
+        for xy in state:
+            self.set_pixel(xy, (0, 0, 0))
 
 
 class Buttons:
@@ -36,10 +36,10 @@ class Buttons:
     X = 2
     Y = 3
 
-    def __init__(self, driver, freq=10) -> None:
+    def __init__(self, driver, period=10) -> None:
         self.board = driver
+        self.period = period
         self.timer = Timer()
-        self.period = int(1000/freq)+1
         self.callbacks = {Buttons.A: set(),
                           Buttons.B: set(),
                           Buttons.X: set(),
@@ -72,24 +72,53 @@ class Buttons:
 
 
 class VM:
-    def __init__(self, callback, freq=10) -> None:
+    def __init__(self, driver):
+        self.display = Display(driver)
+        self.buttons = Buttons(driver)
         self.timer = Timer()
-        self.period = int(1000/freq)+1
-        self.callback = callback
-        self.previous = None
+        self.period = 100
+        self.state = {}
+        self.fsm = None
+        self.handlers = {}  # keyed lists of functions
 
-    def start(self, initial_state, fsm):
-        self.previous = initial_state
+    def update(self, state={}):
+        self.call_handler('on_update')
+        self.state = state
+
+    def load(self, fsm=None):
+        self.call_handler('on_load')
+        self.fsm = fsm
+
+    def run(self):
+        self.call_handler('on_run')
 
         def on_timestep(timer):
-            # scoping variables don't work like I thought
-            next = fsm(self.previous)
-            self.callback((self.previous, next))
-            self.previous = next
+            if self.fsm != None:
+                next = self.fsm(self.state)
+                self.update(next)
+                self.display.set(self.state)
 
         self.timer.init(period=self.period,
                         mode=Timer.PERIODIC,
                         callback=on_timestep)
 
     def halt(self):
+        self.call_handler('on_halt')
         self.timer.deinit()
+
+    def call_handler(self, event_name):
+        for fn in self.handlers.get(event_name, []):
+            fn(self)
+
+    def register(self, event_name, fn):
+        handlers = self.handlers.get(event_name, [])
+        handlers.append(fn)
+        self.handlers[event_name] = handlers
+
+    def deregister(self, event_name, fn):
+        try:
+            handlers = self.handlers.get(event_name, [])
+            handlers.remove(fn)
+            self.handlers[event_name] = handlers
+        except:
+            pass  # ignore item not in list errors
