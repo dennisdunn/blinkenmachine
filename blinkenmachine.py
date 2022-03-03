@@ -1,4 +1,4 @@
-from machine import Timer
+from machine import Timer, Pin
 
 
 class Display:
@@ -37,8 +37,8 @@ class Buttons:
     X = 2
     Y = 3
 
-    def __init__(self, driver, eventMgr, period=10) -> None:
-        self.events = eventMgr
+    def __init__(self, driver, callbacks, period=10) -> None:
+        self.events = callbacks
         self.board = driver
         self.period = period
         self.timer = Timer()
@@ -59,7 +59,7 @@ class Buttons:
         self.timer.deinit()
 
 
-class CallbackManager:
+class Events:
     def __init__(self, args={}):
         self.callbacks = {}  # keyed lists of functions
         self.callback_args = args
@@ -85,13 +85,13 @@ class CallbackManager:
 class VM:
     def __init__(self, driver):
         self.display = Display(driver)
-        self.events = CallbackManager(self)
+        self.events = Events(self)
         self.buttons = Buttons(driver, self.events)
         self.timer = Timer()
         self.period = 100
         self.state = {}
         self.fsm = None
-
+        
     def update(self, state={}):
         self.events.invoke('on_update')
         self.state = state
@@ -101,6 +101,7 @@ class VM:
         self.fsm = fsm
 
     def run(self):
+        Pin(25, Pin.OUT).on()
         self.events.invoke('on_run')
         self.buttons.enable()
 
@@ -114,6 +115,7 @@ class VM:
                         callback=on_timestep)
 
     def halt(self):
+        Pin(25, Pin.OUT).off()
         self.call_handler('on_halt')
         self.buttons.disable()
         self.timer.deinit()

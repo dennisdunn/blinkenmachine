@@ -37,13 +37,13 @@ an ```(x, y)``` tuple while a *color* is an ```(r, g, b)``` tuple.
 * ```unset(cells)```
     * Set each cell of *cells* to black.
 
-### CallbackManager
+### Events
 
-A ```CallbackManager``` handles registering, deregistering, and invoking callbacks for named events.
+An *Events* instance handles registering, deregistering, and invoking callbacks for named events.
 
 #### Methods
 
-* ```CallbackManager(args)```
+* ```Events(args)```
     * The *args* argument will be passed to the registered callbacks.
 * ```invoke(event_name)```
     * Call the registerd callbacks for *event_name*.
@@ -59,7 +59,7 @@ Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn bo
 #### Methods
 
 * ```Buttons(driver, events, period)```
-    * The *driver* argument is the picounicorn module, *events* is an instance of a **CallbackManager**, and *period* is the polling delay.
+    * The *driver* argument is the picounicorn module, *events* is an instance of an **Events**, and *period* is the polling delay.
 * ```enable()```
     * Start polling the buttons on the Unicorn board.
 * ```disable()```
@@ -67,7 +67,7 @@ Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn bo
 
 ### VM
 
-The **Blinken Machine** ```VM``` continuously applies finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the new state is
+The **Blinken Machine** *VM* continuously applies a finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the new state is
 displayed, and finally the current state is updated to the new state.
 
 Event handlers can be registered for the **on_load**, **on_update**, **on_run**, and **on_halt**
