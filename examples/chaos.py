@@ -1,15 +1,12 @@
-from blinkenmachine import VM, Buttons
-import picounicorn
 import urandom
 
-picounicorn.init()
-vm = VM(picounicorn)
+size = None
 
-size = vm.display.size()
-
+def init(vm):
+    size = vm.display.size()
 
 def fsm(state):
-
+    
     def rcell():
         (width, height) = size
         return (urandom.randint(0, width), urandom.randint(0, height))
@@ -25,7 +22,3 @@ def fsm(state):
     return next
 
 
-vm.buttons.events.register(Buttons.A, lambda vm: vm.display.clear())
-
-vm.load(fsm)
-vm.run()

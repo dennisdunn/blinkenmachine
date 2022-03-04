@@ -12,14 +12,30 @@ Das Blinken Machine
 >
 > [Wikipedia](https://en.wikipedia.org/wiki/Blinkenlights)
 
-The **Blinken Machine** is a computing device for playing with cellular automata. This tiny computer
-is built with a Raspberry Pi Pico mated with the Pimoroni Pico Unicorn Pack. It runs
-MicroPython as its "BIOS" and an instance of the ```VM``` class as its "operating system."
-Input is through the ```Buttons``` class and output is handled by the ```Display``` class.
+The **Blinken Machine** is a petri dish for playing with cellular automata. 
+
+#### Example
+```
+import picounicorn 
+
+picounicorn.init()
+
+from blinkenmachine import VM
+
+vm = VM(picounicorn)
+
+import examples/chaos
+
+chaos.init()
+
+vm.load(chaos.fsm)
+
+vm.run()
+```
 
 ### Display
 
-The *Display* class controls access to the LEDs on the Pico Unicorn board. A *cell* is
+The *Display* class controls access to the LEDs on the Pico Unicorn pack. A *cell* is
 an ```(x, y)``` tuple while a *color* is an ```(r, g, b)``` tuple.
 
 #### Methods
@@ -51,10 +67,14 @@ An *Events* instance handles registering, deregistering, and invoking callbacks 
     * Add the *callback* to the list of methods for *event_name*.
 * ```deregister(event_name, callback)```
     * Remove the *callback* for *event_name*.
+* ```enable()```
+    * Enable the callbacks.
+* ```disable()```
+    * Disable the callbacks.
 
 ### Buttons
 
-Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn board. Button presses are debounced before invoking the callback. The buttons are named **Buttons.A**, **Buttons.B**, **Buttons.X**, **Buttons.Y**.
+Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn pack. Button presses are debounced before invoking the callback. The buttons are named **Buttons.A**, **Buttons.B**, **Buttons.X**, **Buttons.Y**.
 
 #### Methods
 
@@ -64,14 +84,22 @@ Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn bo
     * Start polling the buttons on the Unicorn board.
 * ```disable()```
     * Stop polling the buttons.
+* ```on(button, callback)```
+    * Register the callback for the button.
+* ```off(button, callback)```
+    * Deregister the callback for the button.
+
+#### Example
+```
+buttons = Buttons(picounicorn, Events())
+buttons.on(Buttons.A, print('button A pressed...'))
+```
 
 ### VM
 
-The **Blinken Machine** *VM* continuously applies a finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the new state is
-displayed, and finally the current state is updated to the new state.
+The **Blinken Machine** *VM* continuously applies a finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the current state is updated to the new state, and finally the new state is displayed.
 
-Event handlers can be registered for the **on_load**, **on_update**, **on_run**, and **on_halt**
-events.
+Event handlers can be registered for the **on_load**, **on_update**, **on_display**, **on_run**, and **on_halt** events.
 
 #### Methods
 
@@ -90,7 +118,6 @@ events.
 
 * Add support for 1-dimensional cellular automata. Each time the bottom row is recalculated, 
 all of the rows move up one row.
-* Add a *WA-TOR* demo. Each cell in *Conway's Life* is very simple, it is either **dead**, **alive** or 
-**empty**. A cell in *WA-TOR* has three states as well, **fish**, **shark**, or **empty** but 
+* Add a *WA-TOR* demo. Each cell in *Conway's Life* is very simple, it is either **dead** or **alive**. A cell in *WA-TOR* has three states, **fish**, **shark**, or **empty** but 
 then it also has properties like **age** and **hunger**.
 * Add a DSL for describing a cellular atomaton and a parser for that language.
