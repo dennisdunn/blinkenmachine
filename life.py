@@ -57,8 +57,7 @@ def refresh(vm):
         
     
 vm.load(fsm)
-vm.update(randomize(vm.display.size()))
-vm.display.clear()
+refresh(vm)
 
 vm.events.register('on_update', refresh)
 vm.run()

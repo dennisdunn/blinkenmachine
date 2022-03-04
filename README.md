@@ -16,20 +16,14 @@ The **Blinken Machine** is a petri dish for playing with cellular automata.
 
 #### Example
 ```
-import picounicorn 
+import picounicorn as driver
+from blinkenmachine import VM, Button
+import chaos
 
-picounicorn.init()
-
-from blinkenmachine import VM
-
-vm = VM(picounicorn)
-
-import examples/chaos
-
-chaos.init()
-
-vm.load(chaos.fsm)
-
+driver.init()
+vm = VM(driver)
+vm.buttons[Button.A].register(lambda:vm.display.clear())
+vm.load(chaos.init(driver))
 vm.run()
 ```
 
@@ -55,44 +49,44 @@ an ```(x, y)``` tuple while a *color* is an ```(r, g, b)``` tuple.
 
 ### Events
 
-An *Events* instance handles registering, deregistering, and invoking callbacks for named events.
+An *Events* instance handles registering, deregistering, and invoking callbacks for named events. Callbacks are thunks so you'll want to close over any references.
 
 #### Methods
 
-* ```Events(args)```
-    * The *args* argument will be passed to the registered callbacks.
+* ```Events()```
 * ```invoke(event_name)```
     * Call the registerd callbacks for *event_name*.
-* ```register(event_name, callback)```
-    * Add the *callback* to the list of methods for *event_name*.
-* ```deregister(event_name, callback)```
-    * Remove the *callback* for *event_name*.
-* ```enable()```
-    * Enable the callbacks.
-* ```disable()```
-    * Disable the callbacks.
+* ```register(event_name, thunk)```
+    * Add the *thunk* to the list of callbacks for *event_name*.
+* ```deregister(event_name, thunk)```
+    * Remove the *thunk* for *event_name*.
 
-### Buttons
+### Button
 
-Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn pack. Button presses are debounced before invoking the callback. The buttons are named **Buttons.A**, **Buttons.B**, **Buttons.X**, **Buttons.Y**.
+Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn pack. Button presses are debounced before invoking the callback.
 
 #### Methods
 
-* ```Buttons(driver, events, period)```
-    * The *driver* argument is the picounicorn module, *events* is an instance of an **Events**, and *period* is the polling delay.
+* ```Button(driver, id, period=10)```
+    * The *driver* argument is the picounicorn module, *id* is one of **Buttons.A**, **Buttons.B**, **Buttons.X**, **Buttons.Y**, and *period* is the polling delay.
 * ```enable()```
     * Start polling the buttons on the Unicorn board.
 * ```disable()```
     * Stop polling the buttons.
-* ```on(button, callback)```
-    * Register the callback for the button.
-* ```off(button, callback)```
-    * Deregister the callback for the button.
+* ```register(thunk)```
+    * Register the thunk as the callback for the button.
+* ```deregister(thunk)```
+    * Deregister the given thunk.
 
 #### Example
 ```
-buttons = Buttons(picounicorn, Events())
-buttons.on(Buttons.A, print('button A pressed...'))
+from blinkenmachine import Button
+import picounicorn as driver
+
+driver.init()
+btn_a = Button(driver, Button.A)
+btn_a.register(lambda: print('button A pressed...'))
+btn_a.enable()
 ```
 
 ### VM
