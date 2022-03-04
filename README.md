@@ -64,7 +64,7 @@ Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn pa
 #### Methods
 
 * ```Button(driver, id, period=10)```
-    * The *driver* argument is the picounicorn module, *id* is one of **Buttons.A**, **Buttons.B**, **Buttons.X**, **Buttons.Y**, and *period* is the polling delay.
+    * The *driver* argument is the picounicorn module, *id* is one of **Button.A**, **Button.B**, **Button.X**, **Button.Y**, and *period* is the polling delay.
 * ```enable()```
     * Start polling the buttons on the Unicorn board.
 * ```disable()```
