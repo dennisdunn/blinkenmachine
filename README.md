@@ -42,10 +42,6 @@ an ```(x, y)``` tuple while a *color* is an ```(r, g, b)``` tuple.
     * Sets all of the pixels to black.
 * ```set_pixel(cell, color)```
     * Set the *cell* to the specified *color*.
-* ```set(cells, color)```
-    * Given the iterable of *cells*, set them to the provided *color*.
-* ```unset(cells)```
-    * Set each cell of *cells* to black.
 
 ### Events
 
@@ -93,7 +89,14 @@ btn_a.enable()
 
 The **Blinken Machine** *VM* continuously applies a finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the current state is updated to the new state, and finally the new state is displayed.
 
-Event handlers can be registered for the **on_load**, **on_update**, **on_display**, **on_run**, and **on_halt** events.
+The *state* argument passed to the FSM function is a dictionary whose keys are *(x, y)* tuples and whose
+values are dictionarys.
+
+```
+state = {(1,1):{'color':(255, 0, 0)}, (2,3):{'color':(255, 255, 0)}}
+```
+
+Event handlers can be registered for the **on_load**, **on_update**, **on_run**, and **on_halt** events.
 
 #### Methods
 
@@ -101,7 +104,7 @@ Event handlers can be registered for the **on_load**, **on_update**, **on_displa
     * Initialize a VM with the picounicorn *driver*.
 * ```load(fsm)```
     * Set the VM fsm to the provided *fsm* method.
-* ```update(state)```
+* ```set(state)```
     * Set the VM state to the provided *state* object.
 * ```run()```
     * Start exeution.

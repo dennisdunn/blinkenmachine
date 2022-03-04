@@ -21,14 +21,6 @@ class Display:
         self.board.set_pixel(x % self.width, y %
                              self.height, r, g, b)  # toroidal display
 
-    def set(self, state):
-        for cell in state.items():
-            (xy, props) = cell
-            self.set_pixel(xy, props['color'])
-
-    def unset(self, state):
-        for xy in state:
-            self.set_pixel(xy, (0, 0, 0))
 
 
 class Button():
@@ -111,27 +103,28 @@ class VM:
             else:
                 self.buttons[id].disable()
                 
-    def update(self, state={}):
-        self.events.invoke('on_update')
+    def __update_display(self):
+        for cell in self.state:
+            self.display.set_pixel(cell, self.state[cell]['color'])
+    
+    def init(self, state):
         self.state = state
 
-    def load(self, fsm=None):
+    def load(self, fsm):
         self.events.invoke('on_load')
-        self.display.clear()
         self.fsm = fsm
 
     def run(self):
-        def on_timestep(timer):
-            if self.fsm != None:
-                self.update(self.fsm(self.state))
-                self.events.invoke('on_display')
-                self.display.set(self.state)
+        def update(timer):
+            self.events.invoke('on_update')   
+            self.state = self.fsm(self.state)
+            self.__update_display()
 
         self.events.invoke('on_run')
         self.__buttons_enable(True)
         self.timer.init(period=self.period,
                         mode=Timer.PERIODIC,
-                        callback=on_timestep)
+                        callback=update)
         self.__running_annunciator(True)
 
     def halt(self):
