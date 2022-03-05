@@ -35,7 +35,7 @@ import life
 driver.init()
 vm = VM(driver)
 vm.load(life.fsm)
-vm.set(life.blinker)
+vm.set(life.glider)
 vm.run()
 ```
 
