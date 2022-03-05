@@ -30,12 +30,13 @@ vm.run()
 ```
 import picounicorn as driver
 from blinkenmachine import VM
-import life
+from misc import patterns
+from life import fsm
 
 driver.init()
 vm = VM(driver)
-vm.load(life.fsm)
-vm.set(life.glider)
+vm.load(fsm)
+vm.set(patterns.glider)
 vm.run()
 ```
 
