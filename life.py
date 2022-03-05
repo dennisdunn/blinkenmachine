@@ -58,6 +58,6 @@ def fsm(state):
                 next[cell] = {'color': (0, 0, 0)}  # died
         else:  # dead
             if counts[cell] == 3:
-                next[cell] = {'color': (0, 255, 0)}  # born
+                next[cell] = {'color': (urandom.randint(0, 255), urandom.randint(0, 255), urandom.randint(0, 255))}  # born
                 
     return next
