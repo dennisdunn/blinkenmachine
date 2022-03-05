@@ -1,5 +1,5 @@
 from machine import Timer, Pin
-
+          
 
 class Display:
     def __init__(self, driver) -> None:
@@ -44,9 +44,10 @@ class Button():
                 for callback in self.callbacks:
                     callback()
 
-        self.timer.init(period=self.period,
-                        mode=Timer.PERIODIC,
-                        callback=on_timestep)
+        if len(self.callbacks) > 0:
+            self.timer.init(period=self.period,
+                            mode=Timer.PERIODIC,
+                            callback=on_timestep)
 
     def disable(self):
         self.timer.deinit()
@@ -103,11 +104,14 @@ class VM:
             else:
                 self.buttons[id].disable()
                 
-    def __update_display(self):
-        for cell in self.state:
-            self.display.set_pixel(cell, self.state[cell]['color'])
+    def __update_display(self, state):
+        for (xy, props) in state.items():
+            self.display.set_pixel(xy, props['color'])
+            
+    def __cell_is_empty(self, cell):
+        return cell[1].get('color', (0,0,0)) == (0,0,0)
     
-    def init(self, state):
+    def set(self, state):
         self.state = state
 
     def load(self, fsm):
@@ -116,19 +120,24 @@ class VM:
 
     def run(self):
         def update(timer):
-            self.events.invoke('on_update')   
-            self.state = self.fsm(self.state)
-            self.__update_display()
-
-        self.events.invoke('on_run')
+            try:
+                state = self.fsm(self.state)
+                self.__update_display(state)
+                self.state = dict(filter(lambda  cell: not self.__cell_is_empty(cell), state.items()))
+                self.events.invoke('on_update')
+            except:
+                self.halt()
+                raise
+            
         self.__buttons_enable(True)
+        self.__running_annunciator(True)
+        self.events.invoke('on_run')
         self.timer.init(period=self.period,
                         mode=Timer.PERIODIC,
                         callback=update)
-        self.__running_annunciator(True)
 
     def halt(self):
-        self.events.invoke('on_halt')
         self.__buttons_enable(False)
-        self.timer.deinit()
         self.__running_annunciator(False)
+        self.events.invoke('on_halt')
+        self.timer.deinit()

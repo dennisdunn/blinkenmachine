@@ -10,10 +10,10 @@ def init(driver):
             return (urandom.randint(0, width), urandom.randint(0, height))
 
         def rcolor():
-            if urandom.random() < 0.25:
-                return (0, 0, 0)
-            else:
+            if urandom.random() < 0.75:
                 return (urandom.randint(0, 255), urandom.randint(0, 255), urandom.randint(0, 255))
+            else:
+                return (0, 0, 0)
 
         next = {}
         next[rcell()] = {'color': rcolor()}

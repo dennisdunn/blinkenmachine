@@ -14,7 +14,7 @@ Das Blinken Machine
 
 The **Blinken Machine** is a petri dish for playing with cellular automata. 
 
-#### Example
+#### Examples
 ```
 import picounicorn as driver
 from blinkenmachine import VM, Button
@@ -24,6 +24,18 @@ driver.init()
 vm = VM(driver)
 vm.buttons[Button.A].register(lambda:vm.display.clear())
 vm.load(chaos.init(driver))
+vm.run()
+```
+
+```
+import picounicorn as driver
+from blinkenmachine import VM
+import life
+
+driver.init()
+vm = VM(driver)
+vm.load(life.fsm)
+vm.set(life.blinker)
 vm.run()
 ```
 
@@ -87,13 +99,12 @@ btn_a.enable()
 
 ### VM
 
-The **Blinken Machine** *VM* continuously applies a finite state machine to a state object. At each timestep the new state is calcualted by applying the FSM function to the current state, the current state is updated to the new state, and finally the new state is displayed.
+The **Blinken Machine** *VM* continuously applies a finite state machine to a state object. At each timestep the new state is calculated by applying the FSM function to the current state, the new state
+is displayed, and finally the current state is updated to the new state minus any dead cells.
 
-The *state* argument passed to the FSM function is a dictionary whose keys are *(x, y)* tuples and whose
-values are dictionarys.
-
+The *state* argument passed to the FSM function is a sparse matrix implemented as a dictionary whose keys are *(x, y)* tuples and whose values are dictionarys. A cell is **alive** if it is a member of the state and its ```color``` property is something other than ```(0, 0, 0)```. In following example, cells ```(1,1)``` and ```(2,3)``` are **alive** while all other cells are **dead**.
 ```
-state = {(1,1):{'color':(255, 0, 0)}, (2,3):{'color':(255, 255, 0)}}
+state = {(1,1):{'color':(255, 0, 0)}, (5,5):{'color':(0, 0, 0)}, (2,3):{'color':(255, 255, 0)}}
 ```
 
 Event handlers can be registered for the **on_load**, **on_update**, **on_run**, and **on_halt** events.
