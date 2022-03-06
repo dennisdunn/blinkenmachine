@@ -118,7 +118,7 @@ class VM:
                 filter(lambda cell: not self.__cell_is_empty(cell), state.items()))
             self.__events.invoke('on_tick')
         except:
-            self.enabled(False)
+            self.running(False)
             raise
 
     def state(self, state=None):

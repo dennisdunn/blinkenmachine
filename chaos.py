@@ -1,13 +1,13 @@
 import urandom
 from misc import randxy, randcolor
 
-def init(driver):
+def fsm(driver):
     width =  driver.get_width()
     height = driver.get_height()
 
-    def fsm(state):
+    def _fsm(state):
         next = {}
         next[randxy((width, height))] = {'color': randcolor()}
         return next
 
-    return fsm
+    return _fsm
