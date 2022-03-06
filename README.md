@@ -22,9 +22,9 @@ import chaos
 
 driver.init()
 vm = VM(driver)
-vm.buttons[Button.A].register(lambda:vm.display.clear())
-vm.load(chaos.init(driver))
-vm.run()
+vm.on(Button.A, vm.clear)
+vm.fsm(chaos.init(driver))
+vm.running(True)
 ```
 
 ```
@@ -35,9 +35,9 @@ from life import fsm
 
 driver.init()
 vm = VM(driver)
-vm.load(fsm)
-vm.set(patterns['glider'])
-vm.run()
+vm.fsm(fsm)
+vm.state(patterns['glider'])
+vm.running(True)
 ```
 
 ### Display
@@ -72,30 +72,36 @@ An *Events* instance handles registering, deregistering, and invoking callbacks 
 
 ### Button
 
+Provides names for the 4 buttons on the Pimoroni Pico Unicorn pack.
+
+* **Button.A**
+* **Button.B**
+* **Button.X**
+* **Button.Y**
+
+
+### Buttons
+
 Provides a callback mechanism for button presses on the Pimoroni Pico Unicorn pack. Button presses are debounced before invoking the callback.
 
 #### Methods
 
-* ```Button(driver, id, period=10)```
-    * The *driver* argument is the picounicorn module, *id* is one of **Button.A**, **Button.B**, **Button.X**, **Button.Y**, and *period* is the polling delay.
-* ```enable()```
-    * Start polling the buttons on the Unicorn board.
-* ```disable()```
-    * Stop polling the buttons.
-* ```register(thunk)```
-    * Register the thunk as the callback for the button.
-* ```deregister(thunk)```
-    * Deregister the given thunk.
+* ```Buttons(driver, period=10)```
+    * The *driver* argument is the picounicorn module, *period* is the polling delay.
+* ```enabled(enabled=None)```
+    * Start polling the buttons on the Unicorn board if *enabled* otherwise stop polling.
+* ```on(button, thunk)```
+    * Register the *thunk* as the callback for the *button*.
 
 #### Example
 ```
-from blinkenmachine import Button
+from blinkenmachine import Button, Buttons
 import picounicorn as driver
 
 driver.init()
-btn_a = Button(driver, Button.A)
-btn_a.register(lambda: print('button A pressed...'))
-btn_a.enable()
+buttons = Buttons(driver)
+buttons.on(Button.A, lambda: print('button A pressed...'))
+buttons.enabled(True)
 ```
 
 ### VM
@@ -108,20 +114,34 @@ The *state* argument passed to the FSM function is a sparse matrix implemented a
 state = {(1,1):{'color':(255, 0, 0)}, (5,5):{'color':(0, 0, 0)}, (2,3):{'color':(255, 255, 0)}}
 ```
 
-Event handlers can be registered for the **on_load**, **on_update**, **on_run**, and **on_halt** events.
+#### Events
+
+Event handlers can be registered for:
+* **on_load**
+    * Invoked when setting the FSM function.
+* **on_tick**
+    * Invoked on each generation.
+* **on_update**
+    * Invoked when setting the state to a new value.
+* **on_run**
+    * Invoked when setting the *running* flag.
+* **on_halt**
+    * Invoked when clearing the *running* flag.
 
 #### Methods
 
 * ```VM(driver)```
     * Initialize a VM with the picounicorn *driver*.
-* ```load(fsm)```
+* ```fsm(fsm=None)```
     * Set the VM fsm to the provided *fsm* method.
-* ```set(state)```
+* ```state(state=None)```
     * Set the VM state to the provided *state* object.
-* ```run()```
-    * Start exeution.
-* ```halt()```
-    * Halt exeution.
+* ```running(running=None)```
+    * If *running* is True then start exeution, otherwise halt.
+* ```on(button, thunk)```
+    * Register the *thunk* as the callback for *button*.
+* ```clear()```
+    * Clear the LED matrix.
 
 ### Next Steps
 

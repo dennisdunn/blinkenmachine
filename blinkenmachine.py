@@ -1,5 +1,5 @@
 from machine import Timer, Pin
-          
+
 
 class Display:
     def __init__(self, driver) -> None:
@@ -22,122 +22,137 @@ class Display:
                              self.height, r, g, b)  # toroidal display
 
 
+class Events:
+    def __init__(self):
+        self.__callbacks = {}  # keyed lists of thunks
 
-class Button():
+    def invoke(self, event_name):
+        for callback in self.__callbacks.get(event_name, []):
+            callback()
+
+    def register(self, event_name, callback):
+        handlers = self.__callbacks.get(event_name, [])
+        handlers.append(callback)
+        self.__callbacks[event_name] = handlers
+
+    def deregister(self, event_name, callback):
+        try:
+            handlers = self.__callbacks.get(event_name, [])
+            handlers.remove(callback)
+            self.__callbacks[event_name] = handlers
+        except:
+            pass  # ignore item not in list errors
+
+
+class Button:
     A = 0
     B = 1
     X = 2
     Y = 3
 
-    def __init__(self, driver, button_id=0, period=10):
+
+class Buttons(Events):
+    def __init__(self, driver, period=10):
+        super().__init__()
         self.board = driver
-        self.id = button_id
         self.period = period
         self.timer = Timer()
-        self.callbacks = []
+        self.__enabled = False
 
-    def enable(self):
-        def on_timestep(timer):
-            if self.board.is_pressed(self.id):
-                while self.board.is_pressed(self.id):  # debounce
-                    pass
-                for callback in self.callbacks:
-                    callback()
+    def __button_name(self, button):
+        return 'button_' + str(button)
 
-        if len(self.callbacks) > 0:
-            self.timer.init(period=self.period,
-                            mode=Timer.PERIODIC,
-                            callback=on_timestep)
-
-    def disable(self):
-        self.timer.deinit()
-
-    def register(self, callback):
-        self.callbacks.append(callback)
-
-    def deregister(self, callback):
-        self.callbacks.remove(callback)
-
-
-class Events:
-    def __init__(self):
-        self.callbacks = {}  # keyed lists of thunks
-
-    def invoke(self, event_name):
-        for callback in self.callbacks.get(event_name, []):
-            callback()
-
-    def register(self, event_name, callback):
-        handlers = self.callbacks.get(event_name, [])
-        handlers.append(callback)
-        self.callbacks[event_name] = handlers
-
-    def deregister(self, event_name, callback):
+    def __tick(self, timer):
         try:
-            handlers = self.callbacks.get(event_name, [])
-            handlers.remove(callback)
-            self.callbacks[event_name] = handlers
+            for n in range(4):
+                if self.board.is_pressed(n):
+                    while self.board.is_pressed(n):  # debounce
+                        pass
+                    super().invoke(self.__button_name(n))
         except:
-            pass  # ignore item not in list errors
+            self.enabled(False)
+            raise
+
+    def enabled(self, enabled=None):
+        if enabled == None:
+            return self.__enabled
+        else:
+            self.__enabled = enabled
+            if self.__enabled:
+                self.timer.init(period=self.period,
+                                mode=Timer.PERIODIC,
+                                callback=self.__tick)
+            else:
+                self.timer.deinit()
+
+    def on(self, button, callback):
+        super().register(self.__button_name(button), callback)
 
 
 class VM:
     def __init__(self, driver, period=100):
-        self.display = Display(driver)
-        self.events = Events()
-        self.timer = Timer()
-        self.period = period
-        self.buttons = {Button.A: Button(driver, Button.A),
-                        Button.B: Button(driver, Button.B),
-                        Button.X: Button(driver, Button.X),
-                        Button.Y: Button(driver, Button.Y)}
-        self.state = {}
-        self.fsm = None
+        self.__display = Display(driver)
+        self.__buttons = Buttons(driver)
+        self.__events = Events()
+        self.__running = False
+        self.__timer = Timer()
+        self.__period = period
+        self.__state = {}
+        self.__fsm = None
 
     def __running_annunciator(self, on):
         Pin(25, Pin.OUT).value(on)
 
-    def __buttons_enable(self, enabled):
-        for id in self.buttons:
-            if enabled:
-                self.buttons[id].enable()
-            else:
-                self.buttons[id].disable()
-                
     def __update_display(self, state):
         for (xy, props) in state.items():
-            self.display.set_pixel(xy, props['color'])
-            
+            self.__display.set_pixel(xy, props['color'])
+
     def __cell_is_empty(self, cell):
-        return cell[1].get('color', (0,0,0)) == (0,0,0)
-    
-    def set(self, state):
-        self.state = state
+        return cell[1].get('color', (0, 0, 0)) == (0, 0, 0)
 
-    def load(self, fsm):
-        self.events.invoke('on_load')
-        self.fsm = fsm
+    def __tick(self, timer):
+        try:
+            state = self.__fsm(self.__state)
+            self.__update_display(state)
+            self.__state = dict(
+                filter(lambda cell: not self.__cell_is_empty(cell), state.items()))
+            self.__events.invoke('on_tick')
+        except:
+            self.enabled(False)
+            raise
 
-    def run(self):
-        def update(timer):
-            try:
-                state = self.fsm(self.state)
-                self.__update_display(state)
-                self.state = dict(filter(lambda  cell: not self.__cell_is_empty(cell), state.items()))
-                self.events.invoke('on_update')
-            except:
-                self.halt()
-                raise
-            
-        self.__buttons_enable(True)
-        self.__running_annunciator(True)
-        self.events.invoke('on_run')
-        self.timer.init(period=self.period,
-                        mode=Timer.PERIODIC,
-                        callback=update)
+    def state(self, state=None):
+        if state == None:
+            return self.__state
+        else:
+            self.__events.invoke('on_update')
+            self.__state = state
+        
+    def fsm(self, fsm=None):
+        if fsm == None:
+            return self.__fsm
+        else:
+            self.__events.invoke('on_load')
+            self.__fsm = fsm
 
-    def halt(self):
-        self.__buttons_enable(False)
-        self.__running_annunciator(False)
-        self.events.invoke('on_halt')
-        self.timer.deinit()
+    def running(self, running=None):
+        if running == None:
+            return self.__running
+        else:
+            self.__running = running
+            self.__buttons.enabled(running)
+            self.__running_annunciator(running)
+            if self.__running:
+                self.__events.invoke('on_run')
+                self.__timer.init(period=self.__period,
+                                mode=Timer.PERIODIC,
+                                callback=self.__tick)
+            else:
+                self.__events.invoke('on_halt')
+                self.__timer.deinit()
+
+    def on(self, button, callback):
+        self.__buttons.on(button, callback)
+        
+    def clear(self):
+        self.__display.clear()
