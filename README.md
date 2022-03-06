@@ -18,12 +18,12 @@ The **Blinken Machine** is a petri dish for playing with cellular automata.
 ```
 import picounicorn as driver
 from blinkenmachine import VM, Button
-import chaos
+from chaos import fsm
 
 driver.init()
 vm = VM(driver)
 vm.on(Button.A, vm.clear)
-vm.fsm(chaos.init(driver))
+vm.fsm(fsm(driver))
 vm.running(True)
 ```
 
