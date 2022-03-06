@@ -117,15 +117,15 @@ state = {(1,1):{'color':(255, 0, 0)}, (5,5):{'color':(0, 0, 0)}, (2,3):{'color':
 #### Events
 
 Event handlers can be registered for:
-* **on_load**
+* ```on_load```
     * Invoked when setting the FSM function.
-* **on_tick**
+* ```on_tick```
     * Invoked on each generation.
-* **on_update**
+* ```on_update```
     * Invoked when setting the state to a new value.
-* **on_run**
+* ```on_run```
     * Invoked when setting the *running* flag.
-* **on_halt**
+* ```on_halt```
     * Invoked when clearing the *running* flag.
 
 #### Methods
