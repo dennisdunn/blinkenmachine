@@ -74,10 +74,10 @@ An *Events* instance handles registering, deregistering, and invoking callbacks 
 
 Provides names for the 4 buttons on the Pimoroni Pico Unicorn pack.
 
-* **Button.A**
-* **Button.B**
-* **Button.X**
-* **Button.Y**
+* ```Button.A```
+* ```Button.B```
+* ```Button.X```
+* ```Button.Y```
 
 
 ### Buttons
